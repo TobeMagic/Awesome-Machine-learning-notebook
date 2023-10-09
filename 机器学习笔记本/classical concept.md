@@ -30,10 +30,10 @@
 >
 >  以下是一些案例中可能使用到投票集成方法的场景：
 >
->  1. 分类任务：当有多个分类器训练出来并表现良好时，可以将它们组合为一个投票集成模型以获得更准确和稳定的分类结果。
->  2. 回归任务：如果有多个回归模型针对同一问题进行了预测，并且这些模型之间具有差异性，则可以使用加权平均或其他规则进行回归结果融合。
->  3. 特征选择与特征提取：不同特征选择或特征提取算法可能会产生不同子集上效果较好的特征。通过将它们组合在一起，可以构建一个强大而全面的特征表示形式。
->  4. 异常检测：如果存在多种异常检测算法并且每种算法都专注于不同类型或属性方面的异常情况，则可利用投票集成来确定最终的异常判断。
+>  1. 分类任务：当有多个分类器训练出来并**表现良好时**，可以将它们组合为一个投票集成模型以获得**更准确和稳定**的分类结果。
+>  2. 回归任务：如果有多个回归模型针对同一问题进行了预测，并且这些模型之间**具有差异性**，则可以使用加权平均或其他规则进行回归结果融合。
+>  3. 特征选择与特征提取：**不同特征选择或特征提取算法**可能会产生**不同子集上效果较好**的特征。通过将它们组合在一起，可以构建一个强大而**全面的特征表示形式**。
+>  4. 异常检测：如果存在多种异常检测算法并且每种算法都专注于**不同类型或属性方面**的异常情况，则可利用投票集成来确定最终的异常判断。
 >
 >  这些案例只是投票集成方法应用的一小部分示例。实际上，可以根据具体问题和数据情况灵活选择、组合基础模型，并使用适当的投票策略进行集成。
 >
@@ -95,3 +95,152 @@
 从解释性的角度来看，一对一策略可能稍微更容易理解，因为每个子问题都是将一个类别与另一个类别进行区分。然而，一对多策略也可以提供类似的解释性，因为它仍然可以解释为将一个类别与其他所有类别进行区分。
 
 总的来说，一对一策略和一对多策略在解释性方面没有明显的差异，选择哪种策略取决于具体的问题和数据集。
+
+### 牛顿法
+
+牛顿法（Newton's Method）是一种数值迭代方法，用于求解方程的根。它基于以下思想：通过**不断改进初始猜测值**，可以**逐步逼近方程的根。**
+
+具体来说，在使用牛顿法时，我们首先选择一个初始猜测值作为方程根的近似值。然后，通过计算**该点处函数曲线的斜率（即导数），并将其与当前点之间的差异除以斜率来更新位置。**这样就得到了一个新的更接近真实根的猜测值。
+
+重复以上步骤直到满足收敛条件为止，通常是当两次迭代之间的误差**小于某个预设精度时停止**。最终得到的结果就是方程在给定精度下所对应的根。
+
+牛顿法具有快速收敛和高效性能等优势，并且被广泛应用于各种科学和工程领域中需要**求解非线性方程或优化问题**时。
+
+### 对数字进行根号
+
+如果您想要在纯Python中求解一个数字的根，可以使用数值迭代方法，例如牛顿法（Newton's Method）或二分法（Bisection Method）。下面是一个示例代码来使用牛顿法求解数字的平方根：
+
+```python
+def find_square_root(number, epsilon):
+    guess = number / 2  # 初始猜测为number的一半
+    
+    while abs(guess * guess - number) > epsilon:
+        guess = (guess + number / guess) / 2
+        
+    return guess
+
+number = 16
+epsilon = 1e-6
+
+square_root = find_square_root(number, epsilon)
+print("Square root of", number, "is:", square_root)
+```
+
+在这个示例代码中，我们定义了一个名为 `find_square_root` 的函数，它接受参数 `number`（待求平方根的数字）和 `epsilon`（收敛条件）。该函数使用牛顿法进行迭代计算，并通过比较当前猜测值与实际平方根之间的差异来判断是否达到了指定精度。
+
+请注意，在调用 `find_square_root` 函数时需要传入待求平方根的数字以及所需精度。在示例代码中，我们计算了数字16的平方根，并将其结果打印出来。
+
+### `sklearn.pipeline` 概念及用法
+
+scikit-learn (sklearn)的`Pipeline`是一个有用的工具，用于将多个机器学习步骤组合成一个整体流程。它可以将数据预处理、特征提取、特征选择和模型训练等步骤有序地连接起来，形成一个完整的机器学习管道。
+
+`Pipeline`的主要优点是它可以将多个步骤封装成一个可交互的对象，使得整个流程可以像一个单一的估计器一样使用。这样做的好处是可以方便地对整个流程进行参数调整、交叉验证和模型选择。
+
+下面是`Pipeline`的一般用法和详细解释：
+
+1. 导入必要的模块：
+
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest
+from sklearn.linear_model import LogisticRegression
+```
+
+2. 定义每个步骤的操作：
+
+```python
+# 数据预处理步骤：标准化数据
+preprocessor = StandardScaler()
+
+# 特征选择步骤：选择K个最好的特征
+feature_selector = SelectKBest(k=10)
+
+# 模型训练步骤：逻辑回归
+classifier = LogisticRegression()
+```
+
+3. 创建`Pipeline`对象，并将步骤按照顺序组合起来：
+
+```python
+pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('feature_selector', feature_selector),
+    ('classifier', classifier)
+])
+```
+
+- 在上述代码中，每个步骤都被定义为一个元组，其中第一个元素是步骤的名称（字符串），第二个元素是要执行的操作（估计器对象）。
+- 步骤的名称在后续操作中起到标识的作用，可以用于参数调整和访问步骤中的属性。
+
+4. 使用`Pipeline`进行数据训练和预测：
+
+```python
+# 训练模型
+pipeline.fit(X_train, y_train)
+
+# 预测
+y_pred = pipeline.predict(X_test)
+```
+
+- 上述代码中，`fit`函数将按照定义的顺序依次对数据进行处理和训练，而`predict`函数将按照相同的顺序对新数据进行预测。
+
+通过使用`Pipeline`，可以将多个步骤组合成一个整体流程，并能够轻松地重复和调整整个流程。此外，`Pipeline`还可以与交叉验证、网格搜索等功能一起使用，用于自动化地选择最佳的模型和参数组合。
+
+**添加参数**
+
+在`Pipeline`中，每个步骤可以具有自己的参数，并且可以通过在步骤名称后添加双下划线和参数名称来为每个步骤添加参数。
+
+以下是为`Pipeline`中的每个步骤添加参数的一般方法：
+
+1. 在定义每个步骤时，为每个步骤的操作（估计器对象）设置参数。例如：
+
+```python
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest
+from sklearn.linear_model import LogisticRegression
+
+# 定义每个步骤的操作及其参数
+preprocessor = StandardScaler()
+feature_selector = SelectKBest(k=10)
+classifier = LogisticRegression(solver='liblinear', C=0.1)
+
+# 创建Pipeline对象并将步骤组合起来
+pipeline = Pipeline([
+    ('preprocessor', preprocessor),
+    ('feature_selector', feature_selector),
+    ('classifier', classifier)
+])
+```
+
+- 在上述代码中，`StandardScaler`没有显式地设置参数，使用默认参数；
+- `SelectKBest`步骤设置了参数`k=10`；
+- `LogisticRegression`步骤设置了参数`solver='liblinear'`和`C=0.1`。
+
+2. 通过在步骤名称后添加双下划线和参数名称，为每个步骤的参数添加值。例如：
+
+```python
+# 设置Pipeline中每个步骤的参数
+pipeline.set_params(feature_selector__k=5, classifier__C=0.01)
+```
+
+- 在上述代码中，`feature_selector__k`设置为5，将替换步骤`feature_selector`的`k`参数；
+- `classifier__C`设置为0.01，将替换步骤`classifier`的`C`参数。
+
+3. 也可以使用`get_params()`方法获取当前参数的值。例如：
+
+```python
+# 获取Pipeline中每个步骤的参数
+params = pipeline.get_params()
+
+# 打印每个步骤的参数
+for param_name in params:
+    print(param_name, params[param_name])
+```
+
+- 上述代码将打印出Pipeline中每个步骤的参数及其对应的值。
+
+通过以上方法，可以方便地为`Pipeline`中的每个步骤设置和修改参数，从而灵活地调整机器学习流程中的参数配置。
+
+总之，`Pipeline`是scikit-learn中一个强大而灵活的工具，可以简化机器学习流程的搭建和管理，提高代码的可读性和可维护性。
