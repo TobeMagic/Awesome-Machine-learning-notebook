@@ -47,21 +47,21 @@
 
 线性回归的发展可以追溯到19世纪。以下是一些重要的里程碑：
 
-1. 1805年：卡尔·弗里德里希·高斯（Carl Friedrich Gauss）提出了最小二乘法的概念，为线性回归提供了数学基础。
+1. 1805年：卡尔·弗里德里希·高斯（Carl Friedrich Gauss）提出了**最小二乘法**的概念，为线性回归提供了数学基础。
 
 2. 1861年：弗朗西斯·高尔顿（Francis Galton）进行了一项关于遗传与身高之间关系的研究，这可以被认为是最早的线性回归应用之一。
 
-3. 1897年：弗朗西斯·埃杰顿（Francis Edgeworth）提出了一种用于估计回归系数的方法，称为最大似然估计。
+3. 1897年：弗朗西斯·埃杰顿（Francis Edgeworth）提出了一种用于估计回归系数的方法，称为**最大似然估计。**
 
 4. 1922年：罗纳德·费舍尔（Ronald Fisher）提出了最小二乘估计的统计性质，并发表了关于线性回归的经典论文。
 
 5. 1950年代：由于计算机技术的发展，线性回归在统计学和经济学中得到广泛应用。
 
-6. 1960年代：提出了多元线性回归，允许模型包含多个自变量。
+6. 1960年代：提出了**多元线性回归**，允许模型包含多个自变量。
 
-7. 1970年代：出现了岭回归和lasso回归等正则化方法，用于处理多重共线性和特征选择问题。
+7. 1970年代：出现了**岭回归和lasso回归**(l1,l2)等正则化方法，用于处理多重共线性和特征选择问题。
 
-8. 1990年代至今：随着机器学习和统计学的快速发展，线性回归仍然是许多预测建模和数据分析任务中的重要方法。同时，出现了更复杂的回归模型和非线性回归方法，如广义线性模型、多项式回归、支持向量回归等。
+8. 1990年代至今：随着机器学习和统计学的快速发展，线性回归仍然是许多预测建模和数据分析任务中的重要方法。同时，出现了更复杂的回归模型和非线性回归方法，如**广义线性模型、多项式回归、支持向量回归**(SVM)等。
 
 线性回归作为一种简单而强大的统计方法，在实际应用中得到广泛使用。它被应用于经济学、金融学、社会科学、医学、工程等领域，用于建立预测模型、探索变量之间的关系以及进行因果推断。
 
@@ -138,13 +138,48 @@ y = w0 + w1*X + w2*X^2 + ... + wn*X^n
 训练多项式回归模型的步骤如下：
 
 1. 准备数据集：将原始特征 `X` 和目标变量 `y` 划分为训练集和测试集。
-
 2. 特征转换：使用 `PolynomialFeatures` 类将训练集和测试集的特征 `X` 转换为多项式特征。可以指定多项式的次数（degree 参数）。
 
-3. 训练模型：使用线性回归模型（如 `LinearRegression`）对转换后的训练集进行训练。模型会学习多项式回归方程的系数。
+>  假设我们有一个简单的数据集，包含一个特征x和对应的目标变量y。原始数据如下：
+>
+>  ```
+>  x = [1, 2, 3]
+>  y = [2, 4, 6]
+>  ```
+>
+>  使用PolynomialFeatures
+>
+>  ```
+>  [[1 1 1]
+>   [1 2 4]
+>   [1 3 9]]
+>  ```
+>
+>  可以看到，使用PolynomialFeatures对特征x进行多项式扩展后，生成了3列特征。第一列是常数项1，第二列是原始特征x，第三列是x的平方。这样，我们就得到了一个包含3个特征的新数据集x_poly。
+>
+>  当面对多个特征时，在多个特征上使用PolynomialFeatures。
+>
+>  假设我们有一个包含两个特征x1和x2的数据集，以及对应的目标变量y。原始数据如下：
+>
+>  ```
+>  x1 = [1, 2, 3]
+>  x2 = [4, 5, 6]
+>  y = [10, 15, 20]
+>  ```
+>
+>  的到如下
+>
+>  ```
+>  [[ 1  1  4  1  4 16]
+>   [ 1  2  5  4 10 25]
+>   [ 1  3  6  9 18 36]]
+>  ```
+>
+>  可以看到，使用PolynomialFeatures对特征x1和x2进行多项式扩展后，生成了6列特征。第一列是常数项1，接下来两列是原始特征x1和x2，然后是两列特征的乘积，最后两列是各特征的平方。这样，我们就得到了一个包含6个特征的新数据集x_poly。
+>
 
-4. 预测：使用训练好的模型对转换后的测试集进行预测。
-
+1. 训练模型：使用线性回归模型（如 `LinearRegression`）对转换后的训练集进行训练。模型会学习多项式回归方程的系数。
+2. 预测：使用训练好的模型对转换后的测试集进行预测。
 5. 评估：通过比较预测结果与实际目标变量的值，评估多项式回归模型的性能。
 
 **经典案例：**
@@ -157,38 +192,54 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_boston
+from sklearn.pipeline import Pipeline
 
-# 生成正弦函数数据集
-np.random.seed(0)
-X = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
-y = np.sin(X) + np.random.randn(100, 1) * 0.2
+# 加载数据集
+boston = load_boston()
+X = boston.data
+y = boston.target
 
-# 多项式特征转换
-poly_features = PolynomialFeatures(degree=9)
-X_poly = poly_features.fit_transform(X)
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 线性回归模型训练
-model = LinearRegression()
-model.fit(X_poly, y)
+# 管道
+pipeline = Pipeline([
+    ("PolynomialFeatures", PolynomialFeatures(degree=2)),# 多项式特征转换
+    ("LinearRegression",LinearRegression())# 线性回归模型训练
+])
+
+pipeline.fit(X_train, y_train)
 
 # 预测结果
-X_test = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
-X_test_poly = poly_features.transform(X_test)
-y_pred = model.predict(X_test_poly)
+y_pred = pipeline.predict(X_test)
 
-# 绘制结果
-plt.scatter(X, y, label='Actual')
-plt.plot(X_test, y_pred, color='red', label='Predicted')
-plt.xlabel('X')
-plt.ylabel('y')
-plt.title('Polynomial Regression')
-plt.legend()
-plt.show()
 
 # 计算均方误差
-mse = mean_squared_error(y, model.predict(X_poly))
+mse = mean_squared_error(y_test, y_pred)
 print('Mean Squared Error:', mse)
+
+plt.scatter(y_test, y_pred, c='blue', alpha=0.6)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')  # 绘制对角线
+
+plt.title('Actual vs. Predicted')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.show()
+
+# 计算残差
+residuals = y_test - y_pred
+
+# 绘制残差图 
+plt.scatter(y_test, residuals)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel('Actual Values')
+plt.ylabel('Residuals')
+plt.title('Residual Plot')
 ```
+
+![image-20231009130204761](core algorithm.assets/image-20231009130204761.png)
 
 **相关学习文档或优秀博客：**
 
@@ -236,7 +287,84 @@ SLSQP算法的整体流程如下：
 
 代码案例：
 
+我们首先需要目标函数和损失函数,所以需要先定义以实现
 
+```python
+import numpy as np
+from sklearn.datasets import load_boston
+from sklearn.preprocessing import PolynomialFeatures
+from scipy.optimize import minimize
+from sklearn.metrics import mean_squared_error, r2_score
+from time import time
+
+start = time()
+
+# 加载波士顿数据集
+boston = load_boston()
+X = boston.data  # 特征矩阵
+y = boston.target  # 目标变量
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42)
+
+# 创建PolynomialFeatures对象，生成多项式特征
+poly_features = PolynomialFeatures(degree=2)
+X_poly = poly_features.fit_transform(X_train)
+
+# 定义损失函数（均方误差）
+def loss_function(theta):
+    y_pred = np.dot(X_poly, theta)
+    mse = mean_squared_error(y_train, y_pred)
+    return mse
+
+# 定义约束条件（无约束）
+constraints = ()
+
+# 定义优化问题 初始参数x0（全零向量）
+optimization_problem = minimize(loss_function, x0=np.zeros(X_poly.shape[1]), constraints=constraints, method='SLSQP')
+
+# 获取优化结果
+theta_optimized = optimization_problem.x
+
+# 在测试集上进行预测
+X_test_poly = poly_features.transform(X_test)
+y_pred = np.dot(X_test_poly, theta_optimized)
+
+# 计算测试集上的均方误差和决定系数
+mse_train = mean_squared_error(y_test, y_pred)
+r2_train = r2_score(y_test, y_pred)
+
+# 输出结果
+print("多项式回归模型拟合结果：")
+print("均方误差（MSE）：", mse_train)
+print("决定系数（R2 Score）：", r2_train)
+print("运行时间（duration）：", time() - start)
+
+plt.scatter(y_test, y_pred, c='blue', alpha=0.6)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')  # 绘制对角线
+
+plt.title('Actual vs. Predicted')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.show()
+
+# 计算残差
+residuals = y_test - y_pred
+
+# 绘制残差图 
+plt.scatter(y_test, residuals)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel('Actual Values')
+plt.ylabel('Residuals')
+plt.title('Residual Plot')
+```
+
+
+
+![image-20231009130216483](core algorithm.assets/image-20231009130216483.png)
+
+可以看时间是比较久的，整体精度更高但是时间较慢，还有便是该算法在面对非常数据能够有着非常良好的效果！比如六个点拟合
 
 ### 广义线性模型
 
@@ -1728,6 +1856,24 @@ class GBMRegressor:
 ### 系统聚类算法
 
 ### DBSCAN算法
+
+## 启发式算法
+
+
+
+启发式算法可以用于寻优模型中的超参数，如随机森林中的树的数量、深度等。相比于网格搜索等传统方法，启发式算法通常需要迭代的次数较少，能够更快地找到最优解。
+
+因此，在使用随机森林建模时采用启发式算法进行寻优是一种有效的方法。然而，具体效果会受到算法选择、参数设置、数据质量等多种因素的影响，所以在实际应用中需要根据具体情况进行评估和调整。
+
+遗传算法、模拟退火和粒子群优化（PSO）都是常用的启发式算法，它们各有优缺点。
+
+遗传算法适用于搜索空间较大、局部最优解较多的问题，在随机森林等建模中常用于调整树的数量和深度等超参数。
+
+模拟退火适用于需要在全局范围内搜索最优解，并且具备一定的接受劣解能力，常用于调整随机森林中树的分裂阈值、特征选取等。
+
+PSO适用于寻找连续型参数的全局最优解，常用于调整随机森林中的树的叶节点个数、特征权重等。
+
+因此，针对不同的问题和目标，选择不同的启发式算法进行寻优可以达到更好的效果。
 
 
 
