@@ -42,7 +42,7 @@ visualize_decision_tree(clf,feature_names = iris.feature_names, class_names = ir
 
 请注意，`plot_tree`函数提供了一些可选参数，可以用于自定义图形的外观。你可以查阅scikit-learn的文档以了解更多关于`plot_tree`函数的详细信息和可选参数的使用方式。
 
-## 回归问题如何可视化
+## 回归可视化方案
 
 在评估回归模型效果时，可以使用多种可视化方案来直观地比较实际值和预测值之间的差异。以下是几种常见的回归模型评估可视化方案和相应的Python代码模板：
 
@@ -59,6 +59,8 @@ plt.ylabel('Predicted Values')
 plt.title('Diagonal Plot - Actual vs. Predicted')
 plt.show()
 ```
+
+![image-20231021103801800](data visualization.assets/image-20231021103801800.png)
 
 2.  残差图：残差图用于检查回归模型的拟合情况。它将实际值和预测值之间的差异（即残差）绘制在y轴上，将实际值绘制在x轴上。通过观察残差图的分布，可以检查模型是	存在系统性的误差或模型是否满足对误差的假设。代码模板如下：
 
@@ -77,7 +79,9 @@ plt.title('Residual Plot')
 plt.show()
 ```
 
-3.  拟合曲线图：对于非线性回归模型，可以绘制拟合曲线来可视化模型的拟合效果（**只适合单变量**）。代码模板如下：
+![image-20231021103942039](data visualization.assets/image-20231021103942039.png)
+
+3.  拟合曲线图：可以绘制拟合曲线来可视化模型的拟合效果（**只适合单变量**）。代码模板如下：
 
 ```python
 import numpy as np
@@ -100,3 +104,6 @@ plt.show()
 ```
 
 这些可视化方案提供了不同的角度和方法来评估回归模型的效果。根据数据和模型的特点，可以选择适合的可视化方案或结合多种方案来全面评估模型的性能。
+
+
+
