@@ -2387,7 +2387,7 @@ Y = [2, 4, 6, 8, 10]
 
 这个案例说明了AIC和BIC在模型选择和定阶中的应用过程。它们通过考虑模型的拟合优度和复杂度，帮助我们选择最优的模型，避免过度拟合。
 
-以下是使用库的的实现，
+以下是使用ARIMA模型自带的bic
 
 ```python
 # 通过BIC矩阵进行模型定阶
@@ -2402,13 +2402,16 @@ for p in range(pmax+1):
             tmp.append(ARIMA(data_w, (p, 2, q)).fit().bic)   
         except:
             tmp.append(None)
-        bic_matrix.append(tmp)
-bic_matrix = pd.DataFrame(bic_matrix)
+    bic_matrix.append(tmp)
+bic_matrix = pd.DataFrame(bic_matrix) # 将列标签置换成二级行标签（去除空值），idxmin通过两级行标签得到对应索引
 # 找出最小值位置
-p, q = bic_matrix.stack().idxmin()
+p, q = bic_matrix.stack().idxmin() 
 print('当BIC最小时，p值和q值分别为: ', p, q)
 ```
+我们首先初始化p,q最大值，初始化BIC矩阵，通过O(N^2)的循环获取对应的最佳BIC，得到二维数据转化成DataFrame,  通过 idxmin得到对应的 r,c 坐标。（该方法需要熟练的pandas的运用，我们还有通过bic每轮大小比较，更新初始化的q,p)
+
 以下是具体代码实现，查看细节可以更好了解原理
+
 ```python
 import numpy as np
 from sklearn.linear_model import LinearRegression

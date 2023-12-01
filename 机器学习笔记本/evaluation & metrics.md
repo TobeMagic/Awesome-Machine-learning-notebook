@@ -410,6 +410,12 @@ $$ R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{
 
 特征的重要性可以通过不同的方法进行计算，如树模型中的信息增益、线性模型中的系数大小等。
 
+####  白噪声检验 （white noise checking)
+
+可以通过对模型与真实值之间的残差进行白噪声检验，如果通过了白噪声检验，则代表残差是不可学习的，没有明显的趋势或周期性，如果没有通过则表明数据还存在可以学习的模式
+
+
+
 ## 聚类
 
 以下是常用的评价算法名称
@@ -438,21 +444,23 @@ $$ R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{
 > for i in range(2,7):
 > 	#构建并训练模型
 >     kmeans=KMeans(n_clusters=i,random_state=123).fit(iris_data)
->     score= fowlkes_mallows_score(iris_target,kmeans.labels) 
+>     score= fowlkes_mallows_score(iris_target,kmeans.labels_) 
 > 	print("iris数据聚号d类EMI评价分值为:{}".f(iscore))
 > ```
 >
-> - 使用轮廓系数评价法评价K-Means聚类模型
+> - 使用轮廓系数评价法&评价K-Means聚类模型
 >
 > ```python
-> from sklearn.metrics import silhouette_score 
+> from sklearn.metrics import silhouette_score ,calinski_harabasz_score
 > import matplotlib.pyplot as plt
 > silhouettteScore = []
+> CalinskiHarabasz = []
 > for i in range(2,15):
 >     #构建并训练模型
 >     kmeans=KMeans(n_clusters=i,random_state=123).fit(iris_data)
->     score= silhouette_score(iris_data, kmeans.labels)
+>     score= silhouette_score(iris_data, kmeans.labels_)
 >     silhouetttescore.append(score)
+>     CalinskiHarabasz.append(calinski_harabasz_score(iris_data,kmeans.labels_))
 > plt.figure(figsize=(10, 6))
 > plt.plot(range(2,15),silhouettteScore,linewidth=1.5，linestyle="-")
 > plt.show()
@@ -461,6 +469,8 @@ $$ R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{
 > <img src="evaluation%20&%20metrics.assets/image-20231126165815774.png" alt="image-20231126165815774" style="zoom: 67%;" />
 >
 > 寻找平均畸变程度最大的聚类数目
+>
+> 
 
 #### ARI评价法（兰德系数）
 
