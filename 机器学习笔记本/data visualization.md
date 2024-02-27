@@ -1,12 +1,31 @@
-## t-SNE 可视化
+##  聚类可视化方案
 
-t-SNE（t-Distributed Stochastic Neighbor Embedding）是一种降维和可视化技术，用于将高维数据映射到二维或三维空间中。它是一种非线性的降维方法，旨在保留原始数据之间的局部相似性关系。由Laurens van der Maaten和Geoffrey Hinton于2008年提出。在此之前，常用的降维方法如PCA（Principal Component Analysis）等主要关注全局结构，而缺乏对局部结构的捕捉能力。
+#### t-SNE 可视化
 
-t-SNE通过计算样本之间的相似度，并尝试在低维嵌入空间中保持这些相似度关系。它使用随机梯度下降等优化算法来最小化高维空间和低维嵌入空间之间的Kullback-Leibler散度。结果是，具有类似特征的样本会在低维投影中更接近。
+聚类完成后需要通过可视化的方式查看聚类效果，通过 sklearn的manifold 模块中的TSNE函数可以实现多维数据的可视化展现。使用TSNE 函数对代码中的结果做可视化，结果如代码所示
 
-因为t-SNE能够捕捉到复杂、非线性结构以及聚类效应，所以它通常被用于可视化高维数据集中不同类别或群组之间的分布关系。例如，在机器学习领域，可以使用t-SNE将特征向量表示为二维或三维点云图，并观察不同类别样本之间的分离程度。
+```python
+import pandas as pd
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt#使用TSNE进行数据降维，降成两维
+tsne= TSNE(n components=2,init='random',
+random_state=177).fit(iris data)
+df=pd.DataFrame(tsne.embedding)#将原始数据转换为 
+DataFramedf['labels']=kmeans.labels_ #将聚类结果存储进df数据表#提取不同标签的数据
+dfl=df[df['labels']==0]
+df2=df[df[ilabels ]==1]
+df3=df[df[labels]==2]
+#绘制图形
+fig=plt.figure(figsize=(9，6))#设定空白画布，并制定大小#用不同的颜色表示不同数据
+plt.plot(dfl[0],dfl[1]，'bo',df2[0],df2[1],'r*1',
+	df3[0],df3[1]，'gD')
+plt.savefig('../tmp/聚类结果.png')
+pltshow()#显示图片
+```
 
-## 决策树可视化
+
+
+## 决策树可视化方案
 
 scikit-learn（sklearn）的`tree`模块提供了一个方便的函数`plot_tree`，用于可视化决策树模型。你可以使用以下步骤来使用`plot_tree`函数进行可视化（以iris数据集为例）：
 
@@ -42,7 +61,7 @@ visualize_decision_tree(clf,feature_names = iris.feature_names, class_names = ir
 
 请注意，`plot_tree`函数提供了一些可选参数，可以用于自定义图形的外观。你可以查阅scikit-learn的文档以了解更多关于`plot_tree`函数的详细信息和可选参数的使用方式。
 
-## 回归可视化方案
+## 回归问题可视化方案
 
 在评估回归模型效果时，可以使用多种可视化方案来直观地比较实际值和预测值之间的差异。以下是几种常见的回归模型评估可视化方案和相应的Python代码模板：
 
@@ -105,9 +124,11 @@ plt.show()
 
 这些可视化方案提供了不同的角度和方法来评估回归模型的效果。根据数据和模型的特点，可以选择适合的可视化方案或结合多种方案来全面评估模型的性能。
 
-## 分类可视化方案
+## 分类问题可视化方案
 
- 决策边界可视化 以 `Perceptron` 为例
+ ### 决策边界可视化 
+
+以 `Perceptron` 为例
 
 在训练好高精度的模型，我们可以通过有效的可视化直观看到分类效果，相比于混淆矩阵等分类指标更加直观。如下示例就可以看出iris数据集的Sepal (花萼）相比 Petal （花瓣）更难分类
 

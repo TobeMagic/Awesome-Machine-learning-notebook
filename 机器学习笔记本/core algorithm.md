@@ -706,11 +706,13 @@ plt.show()
 
 贝叶斯算法（Naive Bayes）是一种常用的概率统计方法，它利用贝叶斯定理来进行分类和预测。其在计算机还没有出现前几十年就存在了，那个时候科学家们都是用手算的，是最早的机器学习形式之一，**该算法基于统计学原理，通过已知的先验概率和观测到的数据，更新对事件发生概率的估计**。因为有着一个很强的假设，每个数据特征都是独立的，这也是条件独立的前提条件，也叫"朴素的"的假设，故叫朴素贝叶斯算法。
 
+> 贝叶斯定理的核心思想是通过已知的条件概率和边际概率，计算出后验概率。先验概率是在考虑任何观测数据之前，基于先前的知识或经验得出的概率。后验概率是在考虑观测数据之后，根据先验概率和条件概率计算得出的概率。 
+
 具体公式推导如下：
 
 1. 贝叶斯定理表达式：
    根据贝叶斯定理，我们可以得到以下表达式：
-   P(A|B) = (P(B|A) * P(A)) / P(B)（注意的是 P(B|A) 的分母范围不是整体样本，而是P(A),所以乘上P(A) 就相当于是基于全局的 P(B|A)
+   P(A|B) = (P(B|A) * P(A)) / P(B)
 
 其中，
 
@@ -718,8 +720,6 @@ plt.show()
 - P(B|A) 是在事件 A 发生的条件下观测到数据 B 的概率（似然）。
 - P(A) 是事件 A 发生的**先验**概率。
 - P(B) 是观测到的数据 B 的概率。
-
-> 贝叶斯定理的核心思想是通过已知的条件概率和边际概率，计算出后验概率。先验概率是在考虑任何观测数据之前，基于先前的知识或经验得出的概率。后验概率是在考虑观测数据之后，根据先验概率和条件概率计算得出的概率。 
 
 2. 朴素贝叶斯分类器：
    在朴素贝叶斯分类器中，我们**假设特征之间相互独立，即给定类别的情况下，特征之间是条件独立的**。基于这个假设，我们可以将贝叶斯定理改写为：
@@ -810,8 +810,6 @@ plt.show()
 5. 图像分类：贝叶斯算法可以用于图像分类任务，通过学习图像特征的概率分布来对新图像进行分类。这在计算机视觉领域中有广泛应用，如人脸识别、目标检测等。
 
 需要注意的是，贝叶斯算法假设了一些先验概率，并且依赖于输入数据的正确性。因此，在实际应用中，选择合适的先验分布和处理不确定性非常重要。
-
-希望这些例子能够帮助你理解贝叶斯算法在不同领域中的应用！如果还有其他问题，请随时提问。
 
 #### 案例
 
@@ -2525,157 +2523,130 @@ print("Best BIC order:", best_bic_order)
 
 对于深度学习方法，循环神经网络RNN用的最多也适合解决这类问题，但是，卷积神经网络CNN，及新出的空间卷积网络TCN都是可以尝试的。
 
-#### LSTM模型
+## 基于实例学习
 
-LSTM构建时间序列模型同样需要用到**滑动窗口**的概念构建数据集与标签。
+### KDD
 
-<img src="core%20algorithm.assets/image-20231130110510200.png" alt="image-20231130110510200" style="zoom:50%;" />
+K最近邻（K Nearest Neighbors，简称KNN）算法是一种常用的分类和回归算法。它基于实例之间的相似性进行预测，即通过找到距离新样本最近的K个训练样本，根据这K个样本的标签来预测新样本的标签。
 
-```python
-def slip_windows(x, steps=50):
-    """
-    :param x: Array-like data (one dimension)
-    :param steps: slip step
-    """
-    assert len(x) > steps, "参数应大于等于steps"
+下面是KNN算法的详细步骤
 
-    data = []
-    target = []
-    for i in range(len(x) - steps):
-        data.append(x[i:i + steps])
-        target.append(x[i+steps])
-    return np.array(data), np.array(target)
-```
+1. 计算需要预测数据中每个样本与其他训练样本的距离。常用的距离度量方法是**欧氏距离**（Euclidean Distance），它可以通过以下公式计算：
 
-这个step其实我们也可以通过前面ARIMA模型求解的自相关与偏向关来参考
+   $$
+   d(\mathbf{x}, \mathbf{y}) = \sqrt{\sum_{i=1}^{n} (x_i - y_i)^2}
+   $$
 
-## 梯度提升机
+   其中，$\mathbf{x}$和$\mathbf{y}$分别是两个样本的特征向量，$n$是特征的数量。
 
-梯度提升机（Gradient Boosting Machine，简称GBM）是一种迭代的决策树算法，可以用于分类或回归预测问题。GBM的工作原理是，每一次新的迭代都在减少上一次迭代的残差，也就是在减少上一次预测的错误。这个过程通过梯度下降法来实现，因此得名梯度提升。
+2. 对距离进行排序，**选择距离最近的K个样本作为邻居**。（需要排序）
 
-GBM的主要步骤如下：
+在面对问题一般通过投票（加权)、平均方法。
 
-1. 初始化一个弱学习器，通常是一个决策树。
-2. 对每一个训练样本计算残差。残差是真实值和预测值之间的差。
-3. **使用残差作为目标变量训练一个新的弱学习器。**
-4. **将新的弱学习器的预测结果与之前的预测结果相加，得到新的预测结果。**
-5. 重复步骤2-4，直到达到预设的迭代次数，或者预测结果的改进不再显著。
+1. 对于分类问题，使用**投票法**（Voting）确定新样本的标签。即，根据K个最近邻居的标签中出现次数最多的标签作为预测结果。如果存在多个标签出现次数相同的情况，可以随机选择其中一个标签。
 
-下面是一个使用Python的`sklearn`库实现GBM的例子：
+2. 对于回归问题，使用**平均法**（Averaging）确定新样本的标签。即，计算K个最近邻居的标签的平均值作为预测结果。
+
+下面是使用Python实现KNN算法的示例代码：
 
 ```python
-from sklearn.datasets import make_regression
+# 使用sklearn库的KNN模型
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import accuracy_score
 
-# 创建一个回归问题的数据集
-X, y = make_regression(n_samples=1000, n_features=20, noise=0.1)
+# 加载经典的鸢尾花数据集
+iris = load_iris()
+X = iris.data
+y = iris.target
 
 # 划分训练集和测试集
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# 创建GBM模型
-gbm = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
+# 创建KNN分类器模型
+knn = KNeighborsClassifier(n_neighbors=3)
 
 # 训练模型
-gbm.fit(X_train, y_train)
+knn.fit(X_train, y_train)
 
-# 预测测试集
-y_pred = gbm.predict(X_test)
+# 预测
+y_pred = knn.predict(X_test)
 
-# 计算并打印MSE
-mse = mean_squared_error(y_test, y_pred)
-print("The mean squared error (MSE) on test set: {:.4f}".format(mse))
+# 计算准确率
+accuracy = accuracy_score(y_test, y_pred)
+print("准确率：", accuracy) # 准确率： 1.0
 ```
 
-这个例子中，我们首先创建了一个回归问题的数据集，然后划分为训练集和测试集。接着，我们创建了一个GBM模型，并用训练集对其进行训练。最后，我们用训练好的模型对测试集进行预测，并计算了预测结果的均方误差（MSE）。
-
-下面是一个使用Python实现GBM回归的详细案例代码，包括底层实现和细节：
+**不使用库的KNN实现**
 
 ```python
+# 不使用库的KNN实现
 import numpy as np
 
-# 定义GBM回归类
-class GBMRegressor:
-    def __init__(self, n_estimators, learning_rate):
-        self.n_estimators = n_estimators
-        self.learning_rate = learning_rate
-        self.models = []  # 存储每个弱学习器
+# 计算欧氏距离
+def euclidean_distance(x1, x2):
+    return np.sqrt(np.sum((x1 - x2) ** 2))
 
-    # 定义损失函数的梯度
-    def _gradient(self, y, y_pred):
-        return y - y_pred
+# KNN算法
+class KNN:
+    def __init__(self, k=3):
+        self.k = k
 
-    # 定义训练弱学习器的函数
-    def _train_weak_learner(self, X, y):
-        # 初始化弱学习器，这里使用一个简单的线性回归模型
-        model = LinearRegression()
-        model.fit(X, y)
-        return model
-
-    # 定义预测函数
-    def predict(self, X):
-        # 初始化预测结果为0
-        y_pred = np.zeros(len(X))
-        # 对每个弱学习器进行预测，并累加预测结果
-        for model in self.models:
-            y_pred += self.learning_rate * model.predict(X)
-        return y_pred
-
-    # 定义训练函数
     def fit(self, X, y):
-        # 初始化预测结果为0
-        y_pred = np.zeros(len(X))
-        # 迭代训练每个弱学习器
-        for _ in range(self.n_estimators):
-            # 计算残差
-            residuals = self._gradient(y, y_pred)
-            # 训练一个新的弱学习器
-            model = self._train_weak_learner(X, residuals)
-            # 更新预测结果
-            y_pred += self.learning_rate * model.predict(X)
-            # 将训练好的弱学习器添加到模型列表中
-            self.models.append(model)
+        self.X_train = X
+        self.y_train = y
+
+    def predict(self, X):
+        y_pred = [self._predict(x) for x in X]
+        return np.array(y_pred)
+
+    def _predict(self, x):
+        # 计算距离
+        distances = [euclidean_distance(x, x_train) for x_train in self.X_train]
+        # 对距离排序并获取最近的K个邻居的索引
+        k_indices = np.argsort(distances)[:self.k]
+        # 获取最近的K个邻居的标签
+        k_labels = [self.y_train[i] for i in k_indices]
+        # 进行投票，确定标签
+        most_common = np.argmax(np.bincount(k_labels))
+        return most_common
+    
+# 使用示例
+X_train = np.array([[1, 2], [1.5, 1.8], [5, 8], [8, 8], [1, 0.6], [9, 11]])
+y_train = np.array([0, 0, 1, 1, 0, 1])
+
+knn = KNN(k=3)
+knn.fit(X_train, y_train)
+
+X_test = np.array([[3, 4], [5, 6], [0, 0]])
+y_pred = knn.predict(X_test)
+
+print("预测结果：", y_pred)
 ```
 
-在这个案例中，我们使用了一个简单的线性回归模型作为弱学习器。您可以根据需要替换为其他模型。在训练过程中，我们迭代训练每个弱学习器，并将它们的预测结果累加到最终的预测结果中。损失函数的梯度用于计算残差，并用于训练每个弱学习器。
+可以看到KNN的效果非常好，它的原理简单直观，具有一定的优势和适用性，但也存在一些限制。以下是业界对KNN算法的评价：
 
-> 假设我们有一个回归问题，目标是预测房屋价格。我们使用GBM来解决这个问题。
->
-> 1. 初始化模型：
->    - 设置迭代次数（n_estimators）和学习率（learning_rate）。
->    - 初始化一个弱学习器，通常是一个决策树，作为初始模型。
->
-> 2. 训练模型：
->    - 对于每一次迭代（t = 1, 2, ..., n_estimators）：
->      - 使用当前模型对训练样本进行预测，得到当前模型的预测结果（F_t-1(x)）。
->      - 计算残差（r_t）：残差是真实值（y）与当前模型的预测结果之间的差异。
->        - r_t = y - F_t-1(x)
->      - **使用残差作为目标变量，训练一个新的弱学习器（h_t）。**
->      - **更新模型的预测结果：**
->        - **F_t(x) = F_t-1(x) + learning_rate * h_t(x)**
->
-> 3. 预测：
->    - 对于新的输入样本，使用累积的预测结果（F_n(x)）作为最终的预测结果。
->
-> 在上述步骤中，F_t(x)表示第t次迭代时的模型预测结果，h_t(x)表示第t次迭代时训练的弱学习器的预测结果，r_t表示第t次迭代时的残差。
->
-> 具体实现时，可以使用梯度下降法来训练每个弱学习器。**梯度下降法的目标是最小化残差的平方和，即最小化以下损失函数：**
->
-> **L(y, F_t-1(x) + learning_rate * h_t(x))**
->
-> 其中，y是真实值，F_t-1(x)是之前模型的预测结果，h_t(x)是当前弱学习器的预测结果。
->
-> 为了最小化损失函数，可以使用**梯度下降法来更新弱学习器的参数**(那就需要弱学习器的具体数学公式以求梯度）。具体步骤如下：
->
-> 1. 初始化弱学习器的参数。
-> 2. 对于每一次迭代（t = 1, 2, ..., n_iterations）：
->    - 计算损失函数对于当前参数的梯度。
->    - 更新参数，使损失函数下降。
-> 3. 返回训练好的弱学习器。
->
-> 这样，通过迭代训练多个弱学习器，并将它们的预测结果累加，就可以得到最终的预测结果。
+1. 简单直观：KNN算法的思想简单直观，易于理解和实现。它基于实例之间的距离度量，通过找出距离最近的K个邻居进行分类或回归预测。
+2. 无参数学习：KNN是一种无参数学习方法，**不需要对数据进行假设或训练模型**。这使得KNN适用于**非线性问题和数据分布复杂的情况**，具有较强的灵活性。
+3. 适用性广泛：KNN算法适用于**分类和回归**任务，并且能够处理**多类别和多输出**问题。它对于**数值型和离散型**特征都可以有效处理。
+4. 鲁棒性：KNN对噪声数据相对鲁棒，因为它基于K个最近邻居的投票或平均值来做出预测，能够减少个别异常值的影响。
+
+尽管KNN具有上述优势，但也存在一些限制和挑战：
+
+1. 高计算成本：KNN在预测阶段需要计算待预测样本与**所有训练样本**之间的距离，其中距离计算是一个耗时的操作。随着数据量增加，计算成本会显著增加。（**每一次预测都需要扫描一次全部数据，预测实时性**）
+2. 内存开销大：KNN**需要存储所有训练样本的特征向量和标签信息**，随着数据量的增加，内存开销也会增加。
+3. 数据不平衡问题：当数据集中某个类别的样本数量远远超过其他类别时，KNN算法会倾向于选择该类别作为预测结果，导致**对少数类别的预测效果较差。**
+4. 特征权重不平衡：如果某些特征对距离计算的贡献更大，但它们的取值范围较小，那么这些特征对KNN的影响就会被削弱，可能导致预测性能下降。（如数据本身显示出来的预测效果并不好和存在大部分异常值时）
+
+在实际应用中，需要根据具体问题和数据集的特点来评估KNN的适用性，并考虑算法的优化和改进措施。
+
+相关学习资源：
+
+1. 李航，《统计学习方法》
+2. Trevor Hastie, Robert Tibshirani, Jerome Friedman，《The Elements of Statistical Learning》
+3. Sebastian Raschka, Vahid Mirjalili，《Python Machine Learning》
+4. Scikit-learn官方文档：https://scikit-learn.org/stable/modules/neighbors.html
 
 # 非监督学习
 
@@ -2861,43 +2832,355 @@ print(labels)
 
 ### 系统聚类算法
 
+系统聚类（Hierarchical Clustering）是一种无监督学习算法，用于对数据集进行聚类分析。它根据数据点之间的相似性或距离度量，将数据点逐步合并到一个或多个聚类中，形成层次化的聚类结构。本文将详细介绍系统聚类算法的数学推导和实现步骤。
+
+## 数学推导
+
+假设我们有一个包含N个数据点的数据集$X = \{x_1, x_2, ..., x_N\}$，其中$x_i \in \mathbb{R}^D$表示第i个数据点。系统聚类的目标是将数据集划分为不同的聚类簇。
+
+### 距离度量
+
+首先，我们需要定义数据点之间的距离度量。常用的度量方式包括欧氏距离（Euclidean distance）、曼哈顿距离（Manhattan distance）等。在这里，我们使用欧氏距离作为距离度量：
+
+$$
+d(x_i, x_j) = \sqrt{\sum_{k=1}^D (x_{ik} - x_{jk})^2}
+$$
+
+其中，$x_{ik}$表示数据点$x_i$的第k个特征值。
+
+### 聚类合并准则
+
+系统聚类算法通过将距离最近的数据点或聚类簇逐步合并，形成聚类结构。常用的合并准则有最小距离法（single linkage）、最大距离法（complete linkage）和平均距离法（average linkage）等。
+
+在最小距离法中，合并两个距离最近的数据点或聚类簇。定义两个聚类簇$C_i$和$C_j$之间的距离为：
+
+$$
+d_{\text{min}}(C_i, C_j) = \min_{x_i \in C_i, x_j \in C_j} d(x_i, x_j)
+$$
+
+在最大距离法中，合并两个距离最远的数据点或聚类簇。定义两个聚类簇$C_i$和$C_j$之间的距离为：
+
+$$
+d_{\text{max}}(C_i, C_j) = \max_{x_i \in C_i, x_j \in C_j} d(x_i, x_j)
+$$
+
+在平均距离法中，合并两个聚类簇的平均距离。定义两个聚类簇$C_i$和$C_j$之间的距离为：
+
+$$
+d_{\text{avg}}(C_i, C_j) = \frac{1}{|C_i| \cdot |C_j|} \sum_{x_i \in C_i} \sum_{x_j \in C_j} d(x_i, x_j)
+$$
+
+其中，$|C_i|$表示聚类簇$C_i$中的数据点数量。
+
+### 聚类合并过程
+
+系统聚类算法的核心思想是逐步合并距离最近的数据点或聚类簇，直到满足预定义的停止准则。下面是系统聚类算法的具体步骤：
+
+1. 初始化：将每个数据点视为一个初始聚类簇。
+2. 计算距离矩阵：计算每两个聚类簇之间的距离，并构建距离矩阵。
+3. 合并最近的聚类簇：找到距离最近的两个聚类簇$C_i$和$C_j$，根据预定义的合并准则将它们合并为一个新的聚类簇$C_k$。
+4. 更新距离矩阵：更新距离矩阵，将$C_i$和$C_j$合并后，更新距离矩阵中与$C_i$和$C_j$相关的距离值为$C_k$与其他聚类簇的距离。具体更新方式取决于所采用的合并准则。
+5. 重复步骤3和步骤4，直到满足停止准则，例如达到预设的聚类簇数量或达到预设的距离阈值。
+
+### 示例数据集
+
+我们使用经典的鸢尾花数据集（Iris dataset）作为示例数据集。这个数据集包含150个样本，每个样本有4个特征值。每个样本都被标记为3个不同的鸢尾花品种之一。
+
+### 使用库的模板实现
+
+下面是使用Python中的`scikit-learn`库实现系统聚类算法的模板代码：
+
+```python
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.datasets import load_iris
+
+# 加载鸢尾花数据集
+X, y = load_iris(return_X_y=True)
+
+# 创建聚类模型
+model = AgglomerativeClustering(n_clusters=3, linkage='ward')
+
+# 训练模型
+model.fit(X)
+
+# 获取每个样本的聚类簇标签
+labels = model.labels_
+```
+
+在上面的代码中，我们使用`AgglomerativeClustering`类创建了一个系统聚类模型。`n_clusters`参数指定了聚类簇的数量，`linkage`参数指定了合并准则，这里使用了Ward方差最小化准则。然后，我们使用`fit`方法对模型进行训练，并通过`labels_`属性获取每个样本的聚类簇标签。
+
+### 手撕模板实现
+
+下面是一个手撕实现系统聚类算法的Python代码模板：
+
+```python
+import numpy as np
+
+def euclidean_distance(x1, x2):
+    return np.sqrt(np.sum((x1 - x2) ** 2))
+
+def compute_distance_matrix(X):
+    N = X.shape[0]
+    distance_matrix = np.zeros((N, N))
+    for i in range(N):
+        for j in range(N):
+            distance_matrix[i, j] = euclidean_distance(X[i], X[j])
+    return distance_matrix
+
+def hierarchical_clustering(X, n_clusters, linkage='single'):
+    N = X.shape[0]
+    clusters = [[i] for i in range(N)]  # 初始聚类簇
+    distance_matrix = compute_distance_matrix(X)
+
+    while len(clusters) > n_clusters:
+        min_distance = np.inf
+        merge_indices = (0, 0)
+
+        for i in range(len(clusters)):
+            for j in range(i + 1, len(clusters)):
+                if linkage == 'single':
+                    distance = np.min(distance_matrix[clusters[i], clusters[j]])
+                elif linkage == 'complete':
+                    distance = np.max(distance_matrix[clusters[i], clusters[j]])
+                elif linkage == 'average':
+                    distance = np.mean(distance_matrix[clusters[i], clusters[j]])
+
+                if distance < min_distance:
+                    min_distance = distance
+                    merge_indices = (i, j)
+
+        merged_cluster = clusters[merge_indices[0]] + clusters[merge_indices[1]]
+        clusters = [c for idx, c in enumerate(clusters) if idx not in merge_indices]
+        clusters.append(merged_cluster)
+
+        # 更新距离矩阵
+        for i in range(len(clusters) - 1):
+            if linkage == 'single':
+                distance_matrix[merged_cluster, clusters[i]] = np.min(distance_matrix[merged_cluster, clusters[i]])
+            elif linkage == 'complete':
+                distance_matrix[merged_cluster, clusters[i]] = np.max(distance_matrix[merged_cluster, clusters[i]])
+            elif linkage == 'average':
+                distance_matrix[merged_cluster, clusters[i]] = np.mean(distance_matrix[merged_cluster, clusters[i]])
+            
+            distance_matrix[clusters[i], merged_cluster] = distance_matrix[merged_cluster, clusters[i]]
+
+    return clusters
+
+# 使用示例
+X, y = load_iris(return_X_y=True)
+clusters = hierarchical_clustering(X, n_clusters=3, linkage='single')
+```
+
+在上面的代码中，我们定义了`hierarchical_clustering`函数来执行系统聚类算法。该函数接受输入数据`X`、聚类簇数量`n_clusters`和合并准则`linkage`作为参数。在每次循环中，我们找到最近的两个聚类簇，并根据所选择的合并准则将它们合并为一个新的聚类簇。然后，我们更新距离矩阵以反映聚类簇的合并。最终，函数返回聚类簇的列表。
+
+请注意，上述代码只是一个简化的示例，没有进行错误处理和优化。在实际应用中，可能需要添加适当的错误处理和优化步骤。
+
+- 文献：
+  - Jain, A. K., Murty, M. N., & Flynn, P. J. (1999). Data clustering: A review. *ACM Computing Surveys (CSUR)*, 31(3), 264-323.
+  - Hastie, T., Tibshirani, R., & Friedman, J. (2009). *The elements of statistical learning: data mining, inference, and prediction* (2nd ed.). Springer.
+
 ### DBSCAN算法
 
-## 启发式算法
 
 
+##自监督学习
 
-启发式算法可以用于寻优模型中的超参数，如随机森林中的树的数量、深度等。相比于网格搜索等传统方法，启发式算法通常需要迭代的次数较少，能够更快地找到最优解。
+### 自编码
 
-因此，在使用随机森林建模时采用启发式算法进行寻优是一种有效的方法。然而，具体效果会受到算法选择、参数设置、数据质量等多种因素的影响，所以在实际应用中需要根据具体情况进行评估和调整。
-
-遗传算法、模拟退火和粒子群优化（PSO）都是常用的启发式算法，它们各有优缺点。
-
-遗传算法适用于搜索空间较大、局部最优解较多的问题，在随机森林等建模中常用于调整树的数量和深度等超参数。
-
-模拟退火适用于需要在全局范围内搜索最优解，并且具备一定的接受劣解能力，常用于调整随机森林中树的分裂阈值、特征选取等。
-
-PSO适用于寻找连续型参数的全局最优解，常用于调整随机森林中的树的叶节点个数、特征权重等。
-
-因此，针对不同的问题和目标，选择不同的启发式算法进行寻优可以达到更好的效果。
-
-
-
-
-
-
-
-# 自监督学习
-
-## 自编码
-
-探索不同类型的自动编码器，例如去噪、变分和稀疏编码器，可以为您的数据带来令人惊讶的变化，而不仅仅是简单的特征工程和选择可以实现的。
+探索不同类型的自动编码器，例如去噪、变分和稀疏编码器，可以为您的数据带来令人惊讶的变化，而不仅仅是简单的特征工程和选择可以实现 的。
 
 模型融合。组合不同模型的结果可以为您的解决方案增加多样性，从而使其更加稳健和稳定。无论什么建模技巧奏效，合奏总是我在比赛中的“最后手段”。
 
-## 自回归
+### 自回归
 
 
 
-# 集成学习
+# 集成学习（Integrated learning）
 
+在机器学习中，集成（Ensemble）指的是将**多个基本模型组合**起来形成一个更强大和更稳定的预测模型的方法。通过结合多个不同的基本模型，集成可以充分利用**各自模型之间的优势**，并且可以改善整体预测性能。常见的集成方法包括**投票法（Voting）、平均法（Averaging）、堆叠法（Stacking）**等。这些方法可以通过对每个基本模型进行训练和融合来生成最终预测结果，从而提高模型的泛化能力和鲁棒性。
+
+集成可以通过不同的方法实现，下面是几种常见的机器学习集成技术。
+
+1. **投票集成（Voting Ensemble）**：投票集成是一种简单而有效的方法，通过**组合多个基础模型**的预测结果来进行最终的决策。它利用了**多个独立模型之间的差异性**，以期望在整体上提高模型的准确性和鲁棒性。这种方式适用于二元分类、多类分类以及回归问题。
+
+>  在投票集成中，每个基础模型都会对给定输入样本进行预测，并产生一个类别标签或概率分布作为输出。然后，使用某种规则（如**简单多数表决、加权平均**等）将这些独立预测结果结合起来生成最终的预测。
+>
+>  以下是一些常见的投票集成方法：
+>
+>  1. 硬投票（Hard Voting）：每个基础模型给出一个类别标签，在所有基础模型中获得**最高票数**的类别被选为最终预测结果。	
+>  2. 软投票（Soft Voting）：每个基础模型给出一个**概率分布或置信度值**，在所有基础模型中对**各类别概率进行平均或加权平均**，并选择具有最高平均概率值的类别作为最终预测结果。
+>  3. 加权投票（Weighted Voting）：与软投票相似，但不同算法可以**根据其性能表现赋予不同权重**。较好的模型可以具有较高的权重，从而对最终预测结果产生更大的影响。
+>
+>  投票集成方法通常**适用于多个基础模型之间存在`差异性`且相互独立的情况**。通过结合多个模型，投票集成可以**降低过拟合风险、提高泛化能力，并在处理复杂问题时取得更好的性能**。
+>
+>  以下是一些案例中可能使用到投票集成方法的场景：
+>
+>  1. 分类任务：当有多个分类器训练出来并**表现良好时**，可以将它们组合为一个投票集成模型以获得**更准确和稳定**的分类结果。
+>  2. 回归任务：如果有多个回归模型针对同一问题进行了预测，并且这些模型之间**具有差异性**，则可以使用加权平均或其他规则进行回归结果融合。
+>  3. 特征选择与特征提取：**不同特征选择或特征提取算法**可能会产生**不同子集上效果较好**的特征。通过将它们组合在一起，可以构建一个强大而**全面的特征表示形式**。
+>  4. 异常检测：如果存在多种异常检测算法并且每种算法都专注于**不同类型或属性方面**的异常情况，则可利用投票集成来确定最终的异常判断。
+>
+>  这些案例只是投票集成方法应用的一小部分示例。实际上，可以根据具体问题和数据情况灵活选择、组合基础模型，并使用适当的投票策略进行集成。
+
+1. **堆叠集成（Stacking Ensemble）**：堆叠集成使用**一个元模型来整合多个基础模型的预测结果**。首先，将数据分为训练子集和验证子集，在训练子集上分别训练**不同类型或参数设置不同的基础模型**。然后，使用验证子集上得到的基础模型预测结果作为新特征输入给元模型进行拟合，并最终生成最后预测。
+
+>  Stacking ensemble（堆叠集成）是一种机器学习集成方法，它通过结合多个基础模型的预测结果来生成最终的预测。与其他集成方法（如Bagging和Boosting）不同，Stacking将多个基础模型组合在一起，并使用一个元模型来整合它们的预测结果。
+>
+>  以下是Stacking ensemble的详细解释：
+>
+>  1. **构建基础模型**：首先，我们需要选择并训练多个不同类型或配置的基础模型。这些可以是任何机器学习算法（例如决策树、支持向量机、随机森林等），也可以是相同算法但具有不同超参数设置的实例。
+>
+>  2. **生成训练数据**：接下来，在训练阶段，我们将使用交叉验证技术将原始数据分为几个折（fold）。对于每个折，我们依次进行以下步骤：
+>     - 在当前折上训练每个基础模型。
+>     - 使用未参与当前折训练过程的剩余数据作为输入，对每个已经训练好的基础模型进行预测。这样就得到了一个新特征矩阵作为该折中所有样本的新特征表示。
+>     - 将这些新特征与原始特征拼接在一起，形成一个新的训练集。同时，将该折中所有样本的真实标签作为目标变量。
+>
+>  3. **训练元模型**：使用生成的新特征矩阵和对应的真实标签，我们可以训练一个元模型（也称为次级学习器）。这个元模型接收基础模型预测结果组成的特征矩阵作为输入，并输出最终的预测结果。
+>
+>  4. **进行预测**：在测试阶段，我们首先对每个已经训练好的基础模型进行单独预测。然后，将这些基础模型生成的预测结果作为输入传递给之前训练好的元模型，并获得最终合并后的预测结果。
+>
+>  Stacking ensemble方法通过结合多个不同类型或配置参数设置下表现良好但有所偏差（bias）和方差（variance）倾向于互补性错误（complementary errors）问题来提高整体性能。它充分利用了各种算法之间不同类型、优势与局限性之间互相弥补关系。
+>
+>  以下是一个简单示例：
+>
+>  - 假设我们要解决一个二分类问题。
+>  - 我们选择三个基础分类器：决策树、支持向量机和随机森林。
+>  - 我们将训练数据分为5个折（fold）。
+>  - 对于每个折，我们在剩余的4个折上训练3个基础模型，并使用它们对当前折中的样本进行预测。这样就得到了一个新特征矩阵作为该折中所有样本的新特征表示。
+>  - 将这些新特征与原始特征拼接在一起，形成一个新的训练集。同时，将该折中所有样本的真实标签作为目标变量。
+>  - 使用生成的新特征矩阵和对应的真实标签来训练元模型（如逻辑回归、神经网络等）。
+>  - 在测试阶段，我们首先对每个已经训练好的基础模型进行单独预测。然后，将这些基础模型生成的预测结果作为输入传递给之前训练好的元模型，并获得最终合并后的预测结果。
+>
+>  通过Stacking ensemble方法，我们可以利用不同算法之间互补性错误来提高整体分类准确度。
+
+1. **提升集成（Boosting Ensemble）**：提升集成是一种**迭代**的方法，它通过训练一系列弱分类器或回归模型，并根据**前一个模型的错误来调整下一个模型的权重**。这样，每个新模型都会更加关注之前预测错误的样本，从而逐步提高整体性能。（如梯度提升机）
+
+以上只是机器学习集成概念中的几个例子。还有其他技术如随机森林、装袋集成等也可以用于解决不同类型的问题。
+
+## 梯度提升机
+
+梯度提升机（Gradient Boosting Machine，简称GBM）是一种迭代的决策树算法，可以用于分类或回归预测问题。GBM的工作原理是，每一次新的迭代都在减少上一次迭代的残差，也就是在减少上一次预测的错误。这个过程通过梯度下降法来实现，因此得名梯度提升。
+
+GBM的主要步骤如下：
+
+1. 初始化一个弱学习器，通常是一个决策树。
+2. 对每一个训练样本计算残差。残差是真实值和预测值之间的差。
+3. **使用残差作为目标变量训练一个新的弱学习器。**
+4. **将新的弱学习器的预测结果与之前的预测结果相加，得到新的预测结果。**
+5. 重复步骤2-4，直到达到预设的迭代次数，或者预测结果的改进不再显著。
+
+下面是一个使用Python的`sklearn`库实现GBM的例子：
+
+```python
+from sklearn.datasets import make_regression
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error
+
+# 创建一个回归问题的数据集
+X, y = make_regression(n_samples=1000, n_features=20, noise=0.1)
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 创建GBM模型
+gbm = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, max_depth=3, random_state=42)
+
+# 训练模型
+gbm.fit(X_train, y_train)
+
+# 预测测试集
+y_pred = gbm.predict(X_test)
+
+# 计算并打印MSE
+mse = mean_squared_error(y_test, y_pred)
+print("The mean squared error (MSE) on test set: {:.4f}".format(mse))
+```
+
+这个例子中，我们首先创建了一个回归问题的数据集，然后划分为训练集和测试集。接着，我们创建了一个GBM模型，并用训练集对其进行训练。最后，我们用训练好的模型对测试集进行预测，并计算了预测结果的均方误差（MSE）。
+
+下面是一个使用Python实现GBM回归的详细案例代码，包括底层实现和细节：
+
+```python
+import numpy as np
+
+# 定义GBM回归类
+class GBMRegressor:
+    def __init__(self, n_estimators, learning_rate):
+        self.n_estimators = n_estimators
+        self.learning_rate = learning_rate
+        self.models = []  # 存储每个弱学习器
+
+    # 定义损失函数的梯度
+    def _gradient(self, y, y_pred):
+        return y - y_pred
+
+    # 定义训练弱学习器的函数
+    def _train_weak_learner(self, X, y):
+        # 初始化弱学习器，这里使用一个简单的线性回归模型
+        model = LinearRegression()
+        model.fit(X, y)
+        return model
+
+    # 定义预测函数
+    def predict(self, X):
+        # 初始化预测结果为0
+        y_pred = np.zeros(len(X))
+        # 对每个弱学习器进行预测，并累加预测结果
+        for model in self.models:
+            y_pred += self.learning_rate * model.predict(X)
+        return y_pred
+
+    # 定义训练函数
+    def fit(self, X, y):
+        # 初始化预测结果为0
+        y_pred = np.zeros(len(X))
+        # 迭代训练每个弱学习器
+        for _ in range(self.n_estimators):
+            # 计算残差
+            residuals = self._gradient(y, y_pred)
+            # 训练一个新的弱学习器
+            model = self._train_weak_learner(X, residuals)
+            # 更新预测结果
+            y_pred += self.learning_rate * model.predict(X)
+            # 将训练好的弱学习器添加到模型列表中
+            self.models.append(model)
+```
+
+在这个案例中，我们使用了一个简单的线性回归模型作为弱学习器。您可以根据需要替换为其他模型。在训练过程中，我们迭代训练每个弱学习器，并将它们的预测结果累加到最终的预测结果中。损失函数的梯度用于计算残差，并用于训练每个弱学习器。
+
+> 假设我们有一个回归问题，目标是预测房屋价格。我们使用GBM来解决这个问题。
+>
+> 1. 初始化模型：
+>    - 设置迭代次数（n_estimators）和学习率（learning_rate）。
+>    - 初始化一个弱学习器，通常是一个决策树，作为初始模型。
+>
+> 2. 训练模型：
+>    - 对于每一次迭代（t = 1, 2, ..., n_estimators）：
+>      - 使用当前模型对训练样本进行预测，得到当前模型的预测结果（F_t-1(x)）。
+>      - 计算残差（r_t）：残差是真实值（y）与当前模型的预测结果之间的差异。
+>        - r_t = y - F_t-1(x)
+>      - **使用残差作为目标变量，训练一个新的弱学习器（h_t）。**
+>      - **更新模型的预测结果：**
+>        - **F_t(x) = F_t-1(x) + learning_rate * h_t(x)**
+>
+> 3. 预测：
+>    - 对于新的输入样本，使用累积的预测结果（F_n(x)）作为最终的预测结果。
+>
+> 在上述步骤中，F_t(x)表示第t次迭代时的模型预测结果，h_t(x)表示第t次迭代时训练的弱学习器的预测结果，r_t表示第t次迭代时的残差。
+>
+> 具体实现时，可以使用梯度下降法来训练每个弱学习器。**梯度下降法的目标是最小化残差的平方和，即最小化以下损失函数：**
+>
+> **L(y, F_t-1(x) + learning_rate * h_t(x))**
+>
+> 其中，y是真实值，F_t-1(x)是之前模型的预测结果，h_t(x)是当前弱学习器的预测结果。
+>
+> 为了最小化损失函数，可以使用**梯度下降法来更新弱学习器的参数**(那就需要弱学习器的具体数学公式以求梯度）。具体步骤如下：
+>
+> 1. 初始化弱学习器的参数。
+> 2. 对于每一次迭代（t = 1, 2, ..., n_iterations）：
+>    - 计算损失函数对于当前参数的梯度。
+>    - 更新参数，使损失函数下降。
+> 3. 返回训练好的弱学习器。
+>
+> 这样，通过迭代训练多个弱学习器，并将它们的预测结果累加，就可以得到最终的预测结果。

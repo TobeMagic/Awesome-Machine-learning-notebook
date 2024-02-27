@@ -1,4 +1,52 @@
-## 聚类
+以下是sklearn主要模块的详解表格:
+
+| 模块名称              | 主要特点和解决问题                                           |
+| --------------------- | ------------------------------------------------------------ |
+| preprocessing         | 数据预处理模块,包含标准化、归一化、缺失值 imputation 等功能。解决数据清洗问题。 |
+| cluster               | 包含KMeans和DBSCAN等具代表性的聚类算法。解决无监督学习中的聚类问题。 |
+| decomposition         | 包含PCA、NMF等降维算法。解决高维数据的降维问题。             |
+| discriminant_analysis | 线性判别分析与贝叶斯定理相关的算法。解决线性可分问题。       |
+| ensemble              | 集成学习方法,如随机森林、AdaBoost、GBDT等。提升模型性能。    |
+| feature_extraction    | 文本特征工程,如词袋模型、词嵌入等。解决文本特征表示。        |
+| feature_selection     | 特征选择工具,如选择性筛选、递归特征消除等。减少特征维度,加快模型训练。 |
+| linear_model          | 线性模型,如LR、SGD、Perceptron等。解决线性假设下的分类与回归问题。 |
+| manifold              | 非线性降维技术,如TSNE、 Isomap等。降低高维数据的维数。       |
+| metrics               | 模型评估指标,如精确率、召回率等。评估模型好坏。              |
+| model_selection       | 交叉验证相关。评估模型泛化能力。                             |
+| multiclass            | 多分类算法。解决多类分类问题。                               |
+| naive_bayes           | 朴素贝叶斯分类器。适用于特征条件独立的分类问题。             |
+| neighbors             | KNN及其variates。解决Instance-based学习问题。                |
+| neural_network        | 人工神经网络。可用于各种机器学习任务。                       |
+| svm                   | 支持向量机。提升线性不可分模型的学习性能。                   |
+| tree                  | 决策树算法,如决策树、随机森林等。解决回归和分类问题。        |
+| pipeline              | 数据管道工具,可对数据集进行链式操作(如预处理、转换、建模等)。简化机器学习工作流程。 |
+| mixture(混合物)       | 高斯混合模型和原生贝叶斯分类器。解决概率生成模型。           |
+| cross_decomposition   | 共线性分解和奇异值分解等方法。矩阵分解与降维。               |
+| covariance            | 协方差估计与相关模式分析。描述随机变量之间的关系。           |
+| experimental(实验)    | 包含一些新的或实验性较弱的算法。                             |
+| utils                 | 通用实用工具,如数据型检查、随机数发生、批量计算等。方便机器学习开发。 |
+| datasets              | 用于加载常见机器学习数据集。方便算法测试和比较。             |
+| externals(外部)       | 绑定第三方库接口,如LibSVM。拓宽算法选择。                    |
+| isotonic              | 同型回归,用于有序回归问题。                                  |
+| multioutput           | 多目标学习框架。解决多个相关预测目标。                       |
+
+## manifold
+
+下表列出了`sklearn.manifold`模块中的一些重要函数及其参数注释。
+
+| 模块名称                 | 介绍                                                         | 参数注释                                                     |
+| ------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `Isomap`                 | 使用等距映射（Isomap）算法将高维数据降维到低维空间           | `n_components`：降维后的维度<br>`n_neighbors`：用于构建近邻图的最近邻居数量<br>`eigen_solver`：特征值求解器的选择（'auto', 'arpack', 'dense'） |
+| `MDS`                    | 使用多维缩放（MDS）算法将高维数据降维到低维空间              | `n_components`：降维后的维度<br>`metric`：距离度量方法<br>`n_init`：用于计算最优初始配置的迭代次数 |
+| `LocallyLinearEmbedding` | 使用局部线性嵌入（LLE）算法将高维数据降维到低维空间          | `n_components`：降维后的维度<br>`n_neighbors`：用于构建近邻图的最近邻居数量<br>`method`：LLE算法的选择（'standard'，'hessian'，'modified'） |
+| `SpectralEmbedding`      | 使用谱嵌入算法将高维数据降维到低维空间                       | `n_components`：降维后的维度<br>`n_neighbors`：用于构建近邻图的最近邻居数量<br>`affinity`：用于计算近邻图的亲和矩阵的方法（'nearest_neighbors'，'rbf'） |
+| `TSNE`                   | 使用 t-分布随机邻域嵌入（t-SNE）算法将高维数据降维到二维或三维空间 | `n_components`：降维后的维度<br>`perplexity`：困惑度参数，控制局部相似性的平衡<br>`learning_rate`：学习率<br>`n_iter`：优化过程的迭代次数 |
+| `PCA`                    | 使用主成分分析（PCA）算法将高维数据降维到低维空间            | `n_components`：降维后的维度                                 |
+| `KernelPCA`              | 使用核主成分分析（Kernel PCA）算法将高维数据降维到低维空间   | `n_components`：降维后的维度                                 |
+
+请注意，上述表格仅包含一些常用函数，并不是`sklearn.manifold`模块中的所有函数。每个函数还有其他可选参数，看官方文档！！！
+
+## cluster
 
 sklearn常用的聚类算法模块cluster提供的聚类算法及其适用范围如下所示。
 
@@ -27,8 +75,6 @@ sklearn常用的聚类算法模块cluster提供的聚类算法及其适用范围
 | 轮廓系数评价法              | 不需要     | 畸变程度最大 | silhouette_score           |
 | Calinski-Harabasz指数评价法 | 不需要     | 相较最大     | calinski_harabaz_score     |
 
-
-
 ### k-means
 
 以下是sklearn中KMeans类的一些构造函数常用参数及其说明：
@@ -44,8 +90,6 @@ sklearn常用的聚类算法模块cluster提供的聚类算法及其适用范围
 | `random_state`         | 随机数生成器的种子                                           |
 | `algorithm`            | 计算距离的算法，可选值为`"auto"`、`"full"`、`"elkan"`        |
 | `verbose`              | 控制详细程度的输出                                           |
-
-
 
 下面是KMeans类的一些常用方法和属性的详细介绍：
 
