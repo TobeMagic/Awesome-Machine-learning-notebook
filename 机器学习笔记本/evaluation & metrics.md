@@ -1,3 +1,22 @@
+## 优秀论文学习
+
+论文1：
+
+<img src="https://markdown-1311598839.cos.ap-nanjing.myqcloud.com/image-20240513115241363.png" alt="image-20240513115241363" style="zoom:50%;" />
+
+1. 可以看到里面这是一个非常典型，需要学习的指标展示方法，在右上角是评价多分类的指标Acc，而在每一个单独的列中则分别展示二分类的指标，包括对正类的识别能力和准确率，对负类的识别能力，
+2. 其中还可以加上AUC，即对误判率的能力检验。
+3. 并且还可以加上混淆矩阵更具具体查看分类的具体个数和比率，以及各个类别之间的误判。
+
+![image-20240513200725249](https://markdown-1311598839.cos.ap-nanjing.myqcloud.com/image-20240513200725249.png)
+
+论文2：
+
+1. 这篇论文中对于指标采用了mean ± std的指标非常严谨，并对指标表格样式中多了一行排版
+2. 该表格中sample更加直观的看到了数据量以及模型预测结果(在一定程度表达了混淆矩阵中具体类别识别能力的效果,注意没有表达各类别的误判率)
+
+
+
 ## 评估方法
 
 我们对模型要求是泛化能力，在评估模型重点就是划分：训练集、验证集和测试集，在训练集进行训练，在验证集进行评估，找到最优参数，再在测试集进行最后一次测试确定 最终最优超参数后，将验证集和训练集一起训练，最终用于评估测试集效果，这其中的重点便是坚决不能出现信息泄露，以下是一个例子：
@@ -92,6 +111,8 @@ print(f"Average Accuracy: {average_score}")
 
 当对一个分类模型进行评估时，通常需要使用多个评估指标来综合考虑其性能。
 
+
+
 #### 精确度（Accuracy）
 
 精确度是指分类正确的样本数占总样本数的比例，是最简单直接的评估指标。
@@ -114,11 +135,45 @@ accuracy = accuracy_score(y_true, y_pred)
 print("Accuracy:", accuracy)
 ```
 
+##### Top-5准确率
 
+在深度学习过程中，会经常看见各成熟网络模型在ImageNet上的Top-1准确率和Top-5准确率的介绍，如下图所示：
+
+`Top-5 Accuracy是指什么呢？一般用在那些场景？？`
+
+　　所谓的Top-1 Accuracy是指**排名第一的类别与实际结果相符的准确率**，就是平时见到的Accuracy，而Top-5 Accuracy是指**排名前五的类别包含实际结果的准确率**，一般用在分类类别众多的情况，比如我们知道ImageNet有大概1000个分类，而模型预测某张图片时，会给出1000个按概率从高到低的类别排名，此时就是使用Top-5 Accuracy可以多方面评估指标.
+
+下面的代码可更为直观地说明其中的区别：
+
+```python
+import numpy as np
+import tensorflow.keras.backend as K
+
+# 随机输出数字0~9的概率分布
+output = K.random_uniform_variable(shape=(1, 10), low=0, high=1)
+# 实际结果假设为数字1
+actual_pos = K.variable(np.array([1]), dtype='int32')
+print("数字0~9的预测概率分布为:", K.eval(output))
+print("实际结果为数字:", K.eval(actual_pos))
+print("实际结果是否in top 1: ", K.eval(K.in_top_k(output, actual_pos, 1)))
+print("实际结果是否in top 5: ", K.eval(K.in_top_k(output, actual_pos, 5)))
+
+输出：
+"""
+数字0~9的预测概率分布为: [[0.301023   0.8182187  0.71007144 0.80164504 0.7268218  0.58599055 0.19250274 0.9076816  0.8101771  0.49439466]]
+实际结果为数字: [1]
+实际结果是否in top 1:  [False]
+实际结果是否in top 5:  [ True]
+"""
+```
+
+从结果上看，output中排名最高的值为0.9076816，其对应的数字为7，而实际数字为1，故不在Top1，而数字1对应的值为0.8182187，排名第二，故在Top5内。
+
+参考文章：https://www.cnblogs.com/hutao722/p/9625591.html
 
 #### 灵敏度（Sensitivity/Recall）
 
-**灵敏度也称召回率**，是指真实正类中被正确预测为正类的样本数占总的真实正类样本数的比例。灵敏度能够反映出分类器对于正样本的识别能力。
+**灵敏度也称召回率**，是指==真实正类==中被正确预测为正类的样本数占总的真实正类样本数的比例。灵敏度能够反映出分类器==对于正样本的识别能力==。
 
 灵敏度计算公式如下：
 
@@ -135,7 +190,7 @@ print("Sensitivity/Recall:", recall)
 
 #### 特异度（Specificity）
 
-特异度是指真实负类中被正确预测为负类的样本数占总的真实负类样本数的比例。特异度能够反映出分类器对于负样本的识别能力。
+特异度是指真实负类中被正确预测为负类的样本数占总的真实负类样本数的比例。特异度能够反映出分类器==对于负样本的识别能力。==
 
 特异度计算公式如下：
 
@@ -145,7 +200,7 @@ $$
 
 #### 精确率（Precision）
 
-精确率是指被预测为正类的样本中真正是正类的样本数占被预测为正类的样本数的比例，能够反映出分类器对于正样本的预测准确性。
+精确率是指被预测为正类的样本中**真正是正类的样本数占被预测为正类的样本数**的比例，能够反映出分类器==对于正样本的预测准确性==。
 
 精确率计算公式如下：
 
@@ -155,7 +210,7 @@ $$
 
 #### F1值（F1-score）
 
-F1值是**综合考虑精确率和灵敏度的调和平均数**，能够综合评价分类器的预测准确性和召回率。
+F1值是**综合考虑精确率和灵敏度的调和平均数**，能够==综合评价分类器的预测准确性和召回率==（即对正样本的识别能力以及对应的准确率）。
 
 F1值计算公式如下：
 
@@ -165,106 +220,96 @@ $$
 
 #### AUC值（Area Under the ROC Curve）
 
-AUC（Area Under the Curve）是一种常用的评估分类模型性能的指标，通常用于ROC曲线（Receiver Operating Characteristic curve）分析。AUC表示ROC曲线下方的面积，其取值范围在0到1之间。
+AUC（Area Under the Curve）是一种常用的评估分类模型性能的指标，通常用于ROC曲线（Receiver Operating Characteristic curve）分析。AUC表示ROC曲线下方的面积，其取值范围在0到1之间，能够反映模型的==高度可区分能力和较小误判率能力。==
 
-以下是对AUC指标的详细解释：
+> > 这个可以这么理解，TPR 表示了模型对于正类的判别能力，FPR表示了模型对于负类判别而误判成正类的误判率，我们需要具有高度可区分能力和较小误判率的模型，而随机分类器则是各一半所以便是对角线。
 
-**1. ROC曲线：**
+1. **真正率（TPR）**：也称为敏感度或召回率（sensitivity\recall），是所有实际为正的样本中被模型正确预测为正的比例。计算公式为：TPR = TP / (TP + FN)，其中TP是真正例的数量，FN是假负例的数量。
+2. **假正率（FPR）**：是所有实际为负的样本中被模型错误预测为正的比例（1 - specificity）。计算公式为：FPR = FP / (FP + TN)，其中FP是假正例的数量，TN是真负例的数量。
+3. **ROC曲线**：通过改变分类阈值，可以计算出不同FPR和TPR的组合，并将这些点绘制在图上，从而得到ROC曲线。完美的分类器会有一条从左下角（0,0）到右上角（1,1）的对角线。(如果是多分类，则需要绘制多条)
+4. **AUC**：ROC曲线下的面积表示模型的总体性能。AUC的值介于0到1之间。AUC值越高，表示模型的分类性能越好。
+5. **图像原理**：在实际应用中，AUC和ROC曲线通常用于比较不同模型的性能，或者评估模型在不同阈值下的分类效果。AUC特别适用于不平衡数据集，因为它同时考虑了正负样本的分类情况。
+6. **计算AUC**：AUC可以通过计算ROC曲线下的梯形面积来得到，这个过程可以通过数值积分方法来实现，也可以通过某些算法直接计算
 
-- ROC曲线是以二分类模型为基础绘制出来的一条图形。(如果是多分类，则需要绘制多条)
+以下是绘制ROC曲线的步骤：
 
-- 它展示了**当分类器阈值变化**时，真阳率（True Positive Rate, TPR）与假阳率（False Positive Rate, FPR）之间的关系。
+1. 收集模型预测结果和相应的真实标签。这些结果包括模型对每个样本的预测概率或分数以及它们对应的真实标签（0表示负例，1表示正例）。
+2. **根据预测概率或分数对样本进行排序**。从高到低排列，使得排名最高的样本具有最大的预测概率或分数。
+3. 选择一个**分类阈值**，并**根据该阈值将样本划分为正例和负例**。例如，如果阈值设置为0.5，则所有预测概率大于等于0.5的样本被视为正例，而小于0.5则被视为负例。
+4. 计算此时的真正例率（TPR）和假正例率（FPR）。
+5. 重复步骤3和4，**使用不同分类阈值来计算一系列不同点对应的TPR和FPR**。这些点构成了ROC曲线上的各个坐标。
+6. 绘制ROC曲线，以FPR作为x轴，TPR作为y轴。通过连接这些坐标点可以得到一条典型情况下具有平滑形状且递增趋势的曲线。
 
-- TPR表示**正确预测为正例样本占所有实际正例样本比例**（sensitivity\recall）；FPR表示**错误预测为正例样本占所有实际负例样本比例**（1 - specificity）。
+>  在理想情况下，ROC曲线会靠近左上角，并且与对角线之间存在较大距离。该区域被认为是模型性能最佳、**具有高度可区分能力和较小误判率的区域。**
 
-   >  以下是绘制ROC曲线的步骤：
-   >
-   >  1. 收集模型预测结果和相应的真实标签。这些结果包括模型对每个样本的预测概率或分数以及它们对应的真实标签（0表示负例，1表示正例）。
-   >
-   >  2. **根据预测概率或分数对样本进行排序**。从高到低排列，使得排名最高的样本具有最大的预测概率或分数。
-   >
-   >  3. 选择一个**分类阈值**，并**根据该阈值将样本划分为正例和负例**。例如，如果阈值设置为0.5，则所有预测概率大于等于0.5的样本被视为正例，而小于0.5则被视为负例。
-   >
-   >  4. 计算此时的真正例率（TPR）和假正例率（FPR）。
-   >
-   >     TPR = TP / (TP + FN)
-   >     
-   >     FPR = FP / (FP + TN)
-   >
-   >  5. 重复步骤3和4，**使用不同分类阈值来计算一系列不同点对应的TPR和FPR**。这些点构成了ROC曲线上的各个坐标。
-   >
-   >  6. 绘制ROC曲线，以FPR作为x轴，TPR作为y轴。通过连接这些坐标点可以得到一条典型情况下具有平滑形状且递增趋势的曲线。
-   >
-   >  在理想情况下，ROC曲线会靠近左上角，并且与对角线之间存在较大距离。该区域被认为是模型性能最佳、**具有高度可区分能力和较小误判率的区域。**
-   
-   下面是一个使用Keras进行二分类训练并绘制ROC曲线的模板代码。此代码还包括计算交叉验证平均ROC曲线以及绘制置信区域的部分。
-   
-   ```python
-   import numpy as np
-   import matplotlib.pyplot as plt
-   from sklearn.metrics import roc_curve, auc
-   from sklearn.model_selection import StratifiedKFold
-   from keras.models import Sequential
-   from keras.layers import Dense
-   
-   # 创建模型（示例）
-   def create_model():
-       model = Sequential()
-       model.add(Dense(16, input_dim=8, activation='relu'))
-       model.add(Dense(8, activation='relu'))
-       model.add(Dense(1, activation='sigmoid'))
-       model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-       return model
-   
-   # 交叉验证绘制ROC曲线
-   def plot_roc_cv(X, y, n_splits=5):
-       cv = StratifiedKFold(n_splits=n_splits, shuffle=True)
-       tprs = []
-       aucs = []
-       mean_fpr = np.linspace(0, 1, 100)
-       
-       fig, ax = plt.subplots()
-       for i, (train, test) in enumerate(cv.split(X, y)):
-           model = create_model()
-           model.fit(X[train], y[train], epochs=10, batch_size=32, verbose=0)
-           y_pred = model.predict(X[test]).ravel()
-           fpr, tpr, thresholds = roc_curve(y[test], y_pred)
-           tprs.append(np.interp(mean_fpr, fpr, tpr))
-           tprs[-1][0] = 0.0
-           roc_auc = auc(fpr, tpr)
-           aucs.append(roc_auc)
-           ax.plot(fpr, tpr, lw=1, alpha=0.3, label='ROC fold %d (AUC = %0.2f)' % (i+1, roc_auc))
-       
-       ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Random Guess')
-       
-       mean_tpr = np.mean(tprs, axis=0)
-       mean_tpr[-1] = 1.0
-       mean_auc = auc(mean_fpr, mean_tpr)
-       std_auc = np.std(aucs)
-       ax.plot(mean_fpr, mean_tpr, color='b', label='Mean ROC (AUC = %0.2f $\pm$ %0.2f)' % (mean_auc, std_auc), lw=2)
-       
-       std_tpr = np.std(tprs, axis=0)
-       tprs_upper = np.minimum(mean_tpr + 2 * std_tpr, 1)
-       tprs_lower = np.maximum(mean_tpr - 2 * std_tpr, 0)
-       ax.fill_between(mean_fpr, tprs_lower, tprs_upper, color='gray', alpha=0.2, label='95% Confidence Interval')
-       
-       ax.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05], title='Receiver Operating Characteristic')
-       ax.legend(loc='lower right')
-       plt.show()
-   
-   # 示例数据
-   X = np.random.rand(100, 8)
-   y = np.random.randint(0, 2, 100)
-   
-   # 绘制ROC曲线
-   plot_roc_cv(X, y, n_splits=5)
-   ```
-   
-   你可以将示例数据替换为你的实际数据，然后运行代码以获得交叉验证的平均ROC曲线和置信区域的绘图结果。
+下面是一个使用Keras进行二分类训练并绘制ROC曲线的模板代码。此代码还包括计算交叉验证平均ROC曲线以及绘制置信区域的部分。
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
+from sklearn.model_selection import StratifiedKFold
+from keras.models import Sequential
+from keras.layers import Dense
+
+# 创建模型（示例）
+def create_model():
+    model = Sequential()
+    model.add(Dense(16, input_dim=8, activation='relu'))
+    model.add(Dense(8, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model
+
+# 交叉验证绘制ROC曲线
+def plot_roc_cv(X, y, n_splits=5):
+    cv = StratifiedKFold(n_splits=n_splits, shuffle=True)
+    tprs = []
+    aucs = []
+    mean_fpr = np.linspace(0, 1, 100)
+    
+    fig, ax = plt.subplots()
+    for i, (train, test) in enumerate(cv.split(X, y)):
+        model = create_model()
+        model.fit(X[train], y[train], epochs=10, batch_size=32, verbose=0)
+        y_pred = model.predict(X[test]).ravel()
+        fpr, tpr, thresholds = roc_curve(y[test], y_pred)
+        tprs.append(np.interp(mean_fpr, fpr, tpr))
+        tprs[-1][0] = 0.0
+        roc_auc = auc(fpr, tpr)
+        aucs.append(roc_auc)
+        ax.plot(fpr, tpr, lw=1, alpha=0.3, label='ROC fold %d (AUC = %0.2f)' % (i+1, roc_auc))
+    
+    ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Random Guess')
+    
+    mean_tpr = np.mean(tprs, axis=0)
+    mean_tpr[-1] = 1.0
+    mean_auc = auc(mean_fpr, mean_tpr)
+    std_auc = np.std(aucs)
+    ax.plot(mean_fpr, mean_tpr, color='b', label='Mean ROC (AUC = %0.2f $\pm$ %0.2f)' % (mean_auc, std_auc), lw=2)
+    
+    std_tpr = np.std(tprs, axis=0)
+    tprs_upper = np.minimum(mean_tpr + 2 * std_tpr, 1)
+    tprs_lower = np.maximum(mean_tpr - 2 * std_tpr, 0)
+    ax.fill_between(mean_fpr, tprs_lower, tprs_upper, color='gray', alpha=0.2, label='95% Confidence Interval')
+    
+    ax.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05], title='Receiver Operating Characteristic')
+    ax.legend(loc='lower right')
+    plt.show()
+
+# 示例数据
+X = np.random.rand(100, 8)
+y = np.random.randint(0, 2, 100)
+
+# 绘制ROC曲线
+plot_roc_cv(X, y, n_splits=5)
+```
+
+你可以将示例数据替换为你的实际数据，然后运行代码以获得交叉验证的平均ROC曲线和置信区域的绘图结果。
 
 
 
-<img src="evaluation & metrics.assets/image-20231013144429358.png" alt="image-20231013144429358" style="zoom: 50%;" />
+<img src="https://markdown-1311598839.cos.ap-nanjing.myqcloud.com/image-20231013144429358.png" alt="image-20231013144429358" style="zoom: 33%;" />
 
 **2. 如何运用到多分类：**
 
@@ -466,7 +511,7 @@ $$ R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y_i})^2}{\sum_{i=1}^{n}(y_i - \bar{
 > plt.show()
 > ```
 >
-> <img src="evaluation%20&%20metrics.assets/image-20231126165815774.png" alt="image-20231126165815774" style="zoom: 67%;" />
+> <img src="https://markdown-1311598839.cos.ap-nanjing.myqcloud.com/image-20231126165815774.png" alt="image-20231126165815774" style="zoom: 67%;" />
 >
 > 寻找平均畸变程度最大的聚类数目
 >
